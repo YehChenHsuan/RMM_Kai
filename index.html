@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="viewport" content="user-scalable=no">
+        <link rel="icon" href="icon/icon.png" type="image/png">
+        <link rel="apple-touch-icon" href="icon/icon.png">
+        <link rel="stylesheet" type="text/css" href="fonts/gamefont.css">
+        <title>我帥嗎</title>
+        <style>
+            #escButton {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                width: 60px;
+                height: 60px;
+                background-color: rgba(0, 0, 0, 0.8);
+                color: white;
+                border: 2px solid white;
+                border-radius: 50%;
+                font-size: 16px;
+                font-weight: bold;
+                cursor: pointer;
+                z-index: 99999;
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: transparent;
+                display: block !important;
+                pointer-events: auto !important;
+            }
+
+            #escButton:active {
+                background-color: rgba(50, 50, 50, 0.9);
+                transform: scale(0.95);
+            }
+
+            /* 新添加的虛擬控制器樣式 */
+            .virtual-controls {
+                position: fixed;
+                z-index: 99999;
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            /* 方向鍵控制器 */
+            #dpad {
+                left: 20px;
+                bottom: 20px;
+                width: 150px;
+                height: 150px;
+            }
+
+            .d-button {
+                position: absolute;
+                width: 50px;
+                height: 50px;
+                background-color: rgba(0, 0, 0, 0.8);
+                border: 2px solid white;
+                color: white;
+                font-weight: bold;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+            }
+
+            #up-btn {
+                top: 0;
+                left: 50px;
+                border-radius: 8px 8px 0 0;
+            }
+
+            #down-btn {
+                bottom: 0;
+                left: 50px;
+                border-radius: 0 0 8px 8px;
+            }
+
+            #left-btn {
+                left: 0;
+                top: 50px;
+                border-radius: 8px 0 0 8px;
+            }
+
+            #right-btn {
+                right: 0;
+                top: 50px;
+                border-radius: 0 8px 8px 0;
+            }
+
+            /* 空格鍵 */
+            #spaceButton {
+                position: fixed;
+                bottom: 20px;
+                right: 100px;
+                width: 80px;
+                height: 60px;
+                background-color: rgba(0, 0, 0, 0.8);
+                color: white;
+                border: 2px solid white;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: bold;
+                cursor: pointer;
+                z-index: 99999;
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            .virtual-controls button:active {
+                background-color: rgba(50, 50, 50, 0.9);
+                transform: scale(0.95);
+            }
+        </style>
+    </head>
+    <body style="background-color: black">
+        <script type="text/javascript" src="js/libs/pixi.js"></script>
+        <script type="text/javascript" src="js/libs/pixi-tilemap.js"></script>
+        <script type="text/javascript" src="js/libs/pixi-picture.js"></script>
+        <script type="text/javascript" src="js/libs/fpsmeter.js"></script>
+        <script type="text/javascript" src="js/libs/lz-string.js"></script>
+        <script type="text/javascript" src="js/libs/iphone-inline-video.browser.js"></script>
+        <script type="text/javascript" src="js/rpg_core.js"></script>
+        <script type="text/javascript" src="js/rpg_managers.js"></script>
+        <script type="text/javascript" src="js/rpg_objects.js"></script>
+        <script type="text/javascript" src="js/rpg_scenes.js"></script>
+        <script type="text/javascript" src="js/rpg_sprites.js"></script>
+        <script type="text/javascript" src="js/rpg_windows.js"></script>
+        <script type="text/javascript" src="js/plugins.js"></script>
+        <script type="text/javascript" src="js/main.js"></script>
+        
+        <!-- 虛擬控制器 -->
+        <div id="dpad" class="virtual-controls">
+            <button id="up-btn" class="d-button">↑</button>
+            <button id="down-btn" class="d-button">↓</button>
+            <button id="left-btn" class="d-button">←</button>
+            <button id="right-btn" class="d-button">→</button>
+        </div>
+
+        <button id="spaceButton">空格</button>
+        <button id="escButton">ESC</button>
+
+        <script>
+            window.addEventListener('DOMContentLoaded', (event) => {
+                // ESC 按鈕功能
+                const escButton = document.getElementById('escButton');
+                if (escButton) {
+                    escButton.addEventListener('touchstart', function(e) {
+                        e.preventDefault();
+                        
+                        const keydownEvent = new KeyboardEvent('keydown', {
+                            key: 'Escape',
+                            code: 'Escape',
+                            keyCode: 27,
+                            which: 27,
+                            bubbles: true,
+                            cancelable: true
+                        });
+                        
+                        const keyupEvent = new KeyboardEvent('keyup', {
+                            key: 'Escape',
+                            code: 'Escape',
+                            keyCode: 27,
+                            which: 27,
+                            bubbles: true,
+                            cancelable: true
+                        });
+
+                        document.dispatchEvent(keydownEvent);
+                        setTimeout(() => {
+                            document.dispatchEvent(keyupEvent);
+                        }, 100);
+                    });
+
+                    escButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        
+                        const keydownEvent = new KeyboardEvent('keydown', {
+                            key: 'Escape',
+                            code: 'Escape',
+                            keyCode: 27,
+                            which: 27,
+                            bubbles: true,
+                            cancelable: true
+                        });
+                        
+                        const keyupEvent = new KeyboardEvent('keyup', {
+                            key: 'Escape',
+                            code: 'Escape',
+                            keyCode: 27,
+                            which: 27,
+                            bubbles: true,
+                            cancelable: true
+                        });
+
+                        document.dispatchEvent(keydownEvent);
+                        setTimeout(() => {
+                            document.dispatchEvent(keyupEvent);
+                        }, 100);
+                    });
+                }
+
+                // 方向鍵和空格鍵功能
+                const keyMap = {
+                    'up-btn': { key: 'ArrowUp', keyCode: 38 },
+                    'down-btn': { key: 'ArrowDown', keyCode: 40 },
+                    'left-btn': { key: 'ArrowLeft', keyCode: 37 },
+                    'right-btn': { key: 'ArrowRight', keyCode: 39 }
+                };
+
+                // 為方向鍵添加事件監聽
+                Object.keys(keyMap).forEach(btnId => {
+                    const button = document.getElementById(btnId);
+                    if (button) {
+                        ['touchstart', 'mousedown'].forEach(eventType => {
+                            button.addEventListener(eventType, e => {
+                                e.preventDefault();
+                                const keydownEvent = new KeyboardEvent('keydown', {
+                                    key: keyMap[btnId].key,
+                                    keyCode: keyMap[btnId].keyCode,
+                                    which: keyMap[btnId].keyCode,
+                                    bubbles: true,
+                                    cancelable: true
+                                });
+                                document.dispatchEvent(keydownEvent);
+                            });
+                        });
+
+                        ['touchend', 'mouseup'].forEach(eventType => {
+                            button.addEventListener(eventType, e => {
+                                e.preventDefault();
+                                const keyupEvent = new KeyboardEvent('keyup', {
+                                    key: keyMap[btnId].key,
+                                    keyCode: keyMap[btnId].keyCode,
+                                    which: keyMap[btnId].keyCode,
+                                    bubbles: true,
+                                    cancelable: true
+                                });
+                                document.dispatchEvent(keyupEvent);
+                            });
+                        });
+                    }
+                });
+
+                // 為空格鍵添加事件監聽
+                const spaceButton = document.getElementById('spaceButton');
+                if (spaceButton) {
+                    ['touchstart', 'mousedown'].forEach(eventType => {
+                        spaceButton.addEventListener(eventType, e => {
+                            e.preventDefault();
+                            const keydownEvent = new KeyboardEvent('keydown', {
+                                key: ' ',
+                                keyCode: 32,
+                                which: 32,
+                                bubbles: true,
+                                cancelable: true
+                            });
+                            document.dispatchEvent(keydownEvent);
+                        });
+                    });
+
+                    ['touchend', 'mouseup'].forEach(eventType => {
+                        spaceButton.addEventListener(eventType, e => {
+                            e.preventDefault();
+                            const keyupEvent = new KeyboardEvent('keyup', {
+                                key: ' ',
+                                keyCode: 32,
+                                which: 32,
+                                bubbles: true,
+                                cancelable: true
+                            });
+                            document.dispatchEvent(keyupEvent);
+                        });
+                    });
+                }
+            });
+
+            // 確保按鈕在遊戲加載後仍然可見
+            window.addEventListener('load', (event) => {
+                const escButton = document.getElementById('escButton');
+                if (escButton) {
+                    escButton.style.display = 'block';
+                    escButton.style.zIndex = '99999';
+                }
+            });
+        </script>
+    </body>
+</html>
